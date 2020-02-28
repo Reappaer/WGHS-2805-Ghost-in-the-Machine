@@ -36,9 +36,12 @@ public class Robot extends TimedRobot {
   private final Talon m_left = new Talon(1);
   private final DifferentialDrive m_drive = new DifferentialDrive(m_left, m_right);
 
+  //Color Spinner Code
   private final Spark colorSpinner = new Spark(2);
   
-
+  // Uncomment the line below when winch lift using Spark is ready
+  private final Spark winchLift = new Spark(3);
+  
   // Declare pneumatic pistons here
   private final Solenoid cellDump = new Solenoid(1);
   private final Solenoid cellDump_return = new Solenoid(0);
@@ -49,9 +52,6 @@ public class Robot extends TimedRobot {
   private final Solenoid scissorLift_Down = new Solenoid(4);
 
   //SendableChooser<Integer> chooser;
-
-  // Uncomment the line below when winch lift using Spark is ready
-  private final Spark winchLift = new Spark(3);
 
   // Joystick code and any global button assignments go here
   private final Joystick m_stick = new Joystick(0);
