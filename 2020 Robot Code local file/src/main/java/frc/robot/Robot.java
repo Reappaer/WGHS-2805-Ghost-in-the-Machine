@@ -16,6 +16,7 @@ import edu.wpi.first.wpilibj.Spark;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 //import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.TimedRobot;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 //import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -36,12 +37,10 @@ public class Robot extends TimedRobot {
   private final Talon m_left = new Talon(1);
   private final DifferentialDrive m_drive = new DifferentialDrive(m_left, m_right);
 
-  //Color Spinner Code
-  private final Spark colorSpinner = new Spark(2);
-  
   // Uncomment the line below when winch lift using Spark is ready
-  private final Spark winchLift = new Spark(3);
-  
+  private final Spark winchLift1 = new Spark(2);
+  private final Spark winchLift2 = new Spark(3); //honestly, lift system was super experimental
+
   // Declare pneumatic pistons here
   private final Solenoid cellDump = new Solenoid(1);
   private final Solenoid cellDump_return = new Solenoid(0);
@@ -51,7 +50,7 @@ public class Robot extends TimedRobot {
   private final Solenoid scissorLift_Up = new Solenoid(5);
   private final Solenoid scissorLift_Down = new Solenoid(4);
 
-  //SendableChooser<Integer> chooser;
+  // SendableChooser<Integer> chooser;
 
   // Joystick code and any global button assignments go here
   private final Joystick m_stick = new Joystick(0);
@@ -127,61 +126,43 @@ public class Robot extends TimedRobot {
   @Override
   public void autonomousPeriodic() {
     
-    /*
-    boolean autoDeposit; 
-    SendableChooser<Integer> chooser = new SendableChooser<Integer>();
-    chooser.addOption("Auto Deposit", autoDeposit);
-    */
-
-    /*
-    //Deposit Autonomous Code 
-    m_drive.arcadeDrive(-1, 0); //drive forward
-    try {
-      Thread.sleep(1000);
-    } catch (InterruptedException ie) {
-      ie.printStackTrace();
-    }
-
-    cellDump.set(true);
-    cellDump_return.set(false);
-    try {
-      Thread.sleep(250);
-    } catch (InterruptedException ie) {
-      ie.printStackTrace();
+    //Start Line Mode
+    if (Timer.getMatchTime() > 14.5) {
+      m_drive.arcadeDrive(-0.5, 0);
+      cellOpen.set(false);
+      cellClose.set(true);
+      cellDump.set(false);
+      cellDump_return.set(true);
+    } else if (Timer.getMatchTime() <= 14) {
+      m_drive.arcadeDrive(0, 0);
     }
     
-    cellOpen.set(true);
-    cellClose.set(false);
-    try {
-      Thread.sleep(2000);
-    } catch (InterruptedException ie) {
-      ie.printStackTrace();
-    }
-
-    cellDump.set(false);
-    cellDump_return.set(true);
-    cellOpen.set(false);
-    cellClose.set(true);
-    m_drive.arcadeDrive(1, 0);
-    try {
-      Thread.sleep(1000);
-    } catch (InterruptedException ie) {
-      ie.printStackTrace();
-      }
-    }
     /*
-    //Drive Backward Autonomous Code
-    m_drive.arcadeDrive(1,0);
-    try {
-      Thread.sleep(500);
-    } catch (InterruptedException ie) {
-      ie.printStackTrace();
+    //Dump Mode; values are not final
+    if (Timer.getMatchTime() > 12) {
+      m_drive.arcadeDrive(-0.5, 0);
+      cellOpen.set(false);
+      cellClose.set(true);
+      cellDump.set(false);
+      cellDump_return.set(true);
+    } else if (Timer.getMatchTime() < 13 && Timer.getMatchTime() > 10) {
+      m_drive.arcadeDrive(0, 0);
+      cellOpen.set(true);
+      cellClose.set(false);
+    } else if(Timer.getMatchTime() < 10 && Timer.getMatchTime() > 7) {
+      cellDump.set(true);
+      cellDump_return.set(false);
+    } else if (Timer.getMatchTime() < 7 && Timer.getMatchTime() > 4) {
+      m_drive.arcadeDrive(0.5, 0);
+      cellOpen.set(false);
+      cellClose.set(true);
+      cellDump.set(false);
+      cellDump_return.set(true);
     }
-
     */
-  }
+}
 
-
+  
   @Override
   public void teleopInit() {
     // This makes sure that the autonomous stops running when
@@ -199,7 +180,7 @@ public class Robot extends TimedRobot {
   @Override
   public void teleopPeriodic() {
     //Pneumatic drive control code goes here; adjust X and Y values if drive is wrong
-    m_drive.arcadeDrive(m_stick.getRawAxis(1)*1, m_stick.getRawAxis(0), false);
+    m_drive.arcadeDrive(m_stick.getRawAxis(1)*1, m_stick.getRawAxis(0), true);
 
     //Pneumatic piston command goes here
     if (m_stick.getRawButton(1) == true) {
@@ -218,69 +199,20 @@ public class Robot extends TimedRobot {
       cellClose.set(true);
     }
 
-    if (m_stick.getRawButton(8) == true) {
-      colorSpinner.setSpeed(1);
-    } else if (m_stick.getRawButton(7) == true) {
-      colorSpinner.setSpeed(-1);
-    } else {
-      colorSpinner.setSpeed(0);
-    }
-/*
-    //Color spinner
-    if (m_stick.getRawButton(3) == true) {
-      colorSpinner.set(0.5);
-    } else if (m_stick.getRawButton(6)) {
-      colorSpinner.set(0.25);
-    } else {
-      colorSpinner.set(0);
-    }
-*/
-   
-    //Reverse the boolean values if switching tubing takes too long.
 
-    //put scissor lift code here
-
-/*
-    //Code for robot lift goes here
-  1. Push button to start winch rotation
-    2. Winch continues rotating for duration of button being held down
-    3. Release button to stop winch rotation
-    4. Winch will not move for the duration of button not being held down
-*/
-
-    
-    //Final details on lift system are TBA.
-/*    
-    if (m_stick.getRawButton(8) == true) {
-      winchLift.setSpeed(1);
-    } else if (m_stick.getRawButton(7) == true) {
-      winchLift.setSpeed(-1);
-    } else {
-      winchLift.setSpeed(0);
-    }
-
-    if (m_stick.getRawButton(10) == true) {
-      scissorLift_Down.set(false);
-      scissorLift_Up.set(true);
-    } else if (m_stick.getRawButton(9) == true) {
-      scissorLift_Down.set(true);
-      scissorLift_Up.set(false);
-    } else if ((m_stick.getRawButton(9) && m_stick.getRawButton(10)) == false) {
-      scissorLift_Up.set(false);
-      scissorLift_Down.set(false);
-    }
-*/
 
     if(m_stick.getRawButton(10) == true) { //single button scissor lift
-      //move winch lift code here when final speed is found
       scissorLift_Down.set(false);
       scissorLift_Up.set(true);
     } else if (m_stick.getRawButton(12) == true) { //winch up
-      winchLift.setSpeed(1);
+      winchLift1.setSpeed(1);
+      winchLift2.setSpeed(-1);
     } else if (m_stick.getRawButton(11) == true) { //winch down
-      winchLift.setSpeed(-1);
+      winchLift1.setSpeed(-1);
+      winchLift2.setSpeed(1);
     } else {
-      winchLift.setSpeed(0);
+      winchLift1.setSpeed(0);
+      winchLift2.setSpeed(0);
       scissorLift_Down.set(true);
       scissorLift_Up.set(false);
     }
@@ -292,6 +224,7 @@ public class Robot extends TimedRobot {
   public void testInit() {
     // Cancels all running commands at the start of test mode.
     CommandScheduler.getInstance().cancelAll();
+    
   }
 
   /**
@@ -301,25 +234,3 @@ public class Robot extends TimedRobot {
   public void testPeriodic() {
   }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
